@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Clinic Assessment</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Clinic">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a1a">
+<link rel="apple-touch-icon" id="apple-icon" href="">
+<link rel="icon" id="favicon" href="">
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%22Clinic%20Assessment%22%2C%22short_name%22%3A%22Clinic%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231a1a1a%22%2C%22theme_color%22%3A%22%231a1a1a%22%7D">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+/* ── RESET & BASE ── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:#f0ede6;color:#1a1a1a;min-height:100vh;padding-bottom:90px;font-size:15px;}
+
+/* ── NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;display:flex;z-index:200;padding:8px 0 14px;}
+.nav-btn{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:#555;font-size:9px;letter-spacing:0.04em;border:none;background:none;padding:5px 0;cursor:pointer;transition:color 0.15s;}
+.nav-btn.active{color:#fff;}
+.nav-btn svg{width:19px;height:19px;stroke-width:1.8;}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:#2a7a4a;position:absolute;top:2px;right:calc(50% - 16px);display:none;}
+.nav-btn.has-data .nav-dot{display:block;}
+
+/* ── SCREENS ── */
+.screen{display:none;padding:14px;}.screen.active{display:block;}
+
+/* ── HEADER ── */
+.app-header{background:#1a1a1a;color:#fff;padding:16px;border-radius:14px;margin-bottom:14px;}
+.app-header h1{font-size:16px;font-weight:600;}
+.app-header p{font-size:11px;color:#888;margin-top:2px;font-family:'DM Mono';}
+.clinic-tag{font-size:12px;color:#8ab0cc;margin-top:5px;font-weight:500;min-height:16px;}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #e5e0d8;}
+.card-title{font-size:10px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#aaa;margin-bottom:12px;}
+
+/* ── FORM FIELDS ── */
+.field{margin-bottom:13px;}
+.field:last-child{margin-bottom:0;}
+.field label{display:block;font-size:13px;font-weight:500;color:#555;margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;padding:11px 13px;border:1.5px solid #e0dbd2;border-radius:10px;font-size:15px;font-family:'DM Sans',sans-serif;background:#fff;color:#1a1a1a;outline:none;-webkit-appearance:none;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#1a1a1a;}
+.field textarea{resize:vertical;min-height:80px;}
+.field-hint{font-size:11px;color:#aaa;margin-top:4px;}
+
+/* ── BUTTONS ── */
+.opt-btn{padding:10px 12px;border:1.5px solid #e0dbd2;border-radius:10px;font-size:13px;background:#fff;color:#444;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;transition:all 0.12s;-webkit-appearance:none;}
+.opt-btn.sel{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.opt-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.opt-row .opt-btn{flex:1;min-width:70px;}
+.add-btn{width:100%;padding:13px;background:#fff;border:1.5px dashed #ccc;border-radius:12px;font-size:14px;color:#888;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;-webkit-appearance:none;}
+.primary-btn{width:100%;padding:14px;background:#1a1a1a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:8px;-webkit-appearance:none;}
+.primary-btn.green{background:#2a7a4a;}
+.primary-btn.blue{background:#2e5a7e;}
+.primary-btn.outline{background:#fff;color:#1a1a1a;border:1.5px solid #1a1a1a;}
+.icon-btn{background:none;border:none;cursor:pointer;padding:4px;font-size:16px;color:#888;line-height:1;-webkit-appearance:none;}
+
+/* ── STORAGE ── */
+.sarea{background:#f7f4ef;border-radius:12px;padding:13px;margin-bottom:10px;border:1px solid #e5e0d8;}
+.sarea-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
+.sarea-title{font-size:13px;font-weight:600;}
+.dim-row{display:flex;gap:7px;margin-bottom:8px;}
+.dim-f{flex:1;}
+.dim-f label{font-size:11px;color:#888;display:block;margin-bottom:3px;font-weight:500;}
+.dim-f input{width:100%;padding:9px 8px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:14px;text-align:center;font-family:'DM Mono';background:#fff;outline:none;}
+.cuft-display{background:#1a1a1a;color:#fff;border-radius:8px;padding:7px 12px;font-size:12px;font-family:'DM Mono';text-align:center;margin-top:4px;}
+.cond-row{display:flex;gap:6px;margin-top:9px;}
+.cond-btn{flex:1;padding:8px 4px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:12px;font-weight:500;text-align:center;cursor:pointer;background:#fff;-webkit-appearance:none;}
+.cond-btn.G.sel{background:#e8f8ee;color:#2a7a4a;border-color:#2a7a4a;}
+.cond-btn.F.sel{background:#fff8e8;color:#c07020;border-color:#c07020;}
+.cond-btn.P.sel{background:#ffeaea;color:#c03030;border-color:#c03030;}
+
+/* ── INVENTORY ── */
+.inv-item{background:#fff;border-radius:12px;margin-bottom:10px;border:1px solid #e5e0d8;overflow:visible;}
+.inv-item-hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;background:#f7f4ef;border-radius:12px 12px 0 0;}
+.inv-item.open .inv-item-hdr{border-radius:12px 12px 0 0;}
+.inv-thumb{width:40px;height:40px;border-radius:8px;background:#e5e0d8;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden;}
+.inv-thumb img{width:100%;height:100%;object-fit:cover;border-radius:8px;}
+.inv-name-txt{font-size:14px;font-weight:500;color:#1a1a1a;line-height:1.3;}
+.inv-meta-txt{font-size:11px;color:#888;margin-top:2px;}
+.inv-total-txt{font-size:13px;font-weight:600;color:#1a1a1a;white-space:nowrap;margin-left:8px;flex-shrink:0;}
+.inv-body{padding:13px 14px;border-top:1px solid #f0ece4;display:none;background:#fff;border-radius:0 0 12px 12px;}
+.inv-body.open{display:block;}
+.inv-action-row{display:flex;gap:8px;margin-top:12px;position:relative;z-index:10;}
+.inv-action-btn{flex:1;padding:10px 8px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;border:1.5px solid #e0dbd2;background:#fff;color:#444;-webkit-appearance:none;}
+.inv-action-btn.danger{border-color:#f0a0a0;color:#c03030;}
+.inv-action-btn.primary{border-color:#b0c8e8;background:#f0f6ff;color:#1a3a5c;}
+.count-log-hdr{font-size:10px;font-weight:600;color:#aaa;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px;}
+.count-entry{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f3ef;font-size:13px;}
+.count-entry:last-of-type{border-bottom:none;}
+.count-total-row{display:flex;justify-content:space-between;padding:8px 0 0;font-size:14px;font-weight:600;border-top:1.5px solid #e5e0d8;margin-top:4px;}
+
+/* ── QTY STEPPER ── */
+.qty-wrap{display:flex;flex-direction:column;gap:8px;}
+.qty-presets{display:flex;gap:5px;flex-wrap:wrap;}
+.qp{padding:6px 10px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:12px;background:#fff;cursor:pointer;font-family:'DM Mono';-webkit-appearance:none;}
+.qp:active{background:#1a1a1a;color:#fff;}
+.qty-stepper{display:flex;align-items:center;gap:8px;}
+.qty-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid #e0dbd2;background:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-appearance:none;}
+.qty-val{font-size:20px;font-weight:600;min-width:38px;text-align:center;}
+.unit-sel{flex:1;padding:9px 10px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:13px;-webkit-appearance:none;background:#fff;font-family:'DM Sans',sans-serif;}
+
+/* ── CONDITION MINI ── */
+.cond-mini{display:flex;gap:5px;}
+.cmb{flex:1;padding:8px 4px;border:1.5px solid #e0dbd2;border-radius:7px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;background:#fff;-webkit-appearance:none;}
+.cmb.G.sel{background:#e8f8ee;color:#2a7a4a;border-color:#2a7a4a;}
+.cmb.F.sel{background:#fff8e8;color:#c07020;border-color:#c07020;}
+.cmb.P.sel{background:#ffeaea;color:#c03030;border-color:#c03030;}
+
+/* ── EXPIRY ── */
+.expiry-row{display:flex;gap:8px;align-items:center;}
+.na-btn{padding:10px 12px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:13px;font-weight:500;background:#fff;cursor:pointer;white-space:nowrap;-webkit-appearance:none;}
+.na-btn.sel{background:#f0f0f0;color:#888;border-color:#ccc;text-decoration:line-through;}
+.exp-sel{flex:1;padding:10px 8px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:13px;-webkit-appearance:none;background:#fff;font-family:'DM Sans',sans-serif;}
+
+/* ── PHOTO ── */
+.photo-opts{display:flex;gap:8px;margin-bottom:12px;}
+.photo-opt{flex:1;padding:14px 6px;border:1.5px dashed #e0dbd2;border-radius:12px;text-align:center;cursor:pointer;background:#fff;}
+.photo-opt svg{display:block;margin:0 auto 5px;width:22px;height:22px;stroke:#888;stroke-width:1.8;fill:none;}
+.photo-opt span{font-size:12px;color:#888;display:block;}
+.photo-preview-img{width:100%;height:130px;border-radius:10px;object-fit:cover;display:block;margin-bottom:10px;}
+.ai-box{background:#f0f6ff;border:1px solid #b0c8e8;border-radius:8px;padding:10px 12px;font-size:13px;color:#1a3a5c;margin-bottom:10px;}
+.ai-box strong{display:block;font-weight:600;margin-bottom:4px;}
+.ai-action-row{display:flex;gap:6px;margin-top:8px;}
+.ai-action-btn{flex:1;padding:8px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;-webkit-appearance:none;}
+
+/* ── QUESTIONNAIRE ── */
+.q-screen-inner{padding-bottom:20px;}
+.q-section{margin-bottom:6px;}
+.q-section-hdr{background:#1a1a1a;color:#fff;padding:12px 16px;border-radius:12px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.q-section-hdr span{font-size:11px;color:#888;font-weight:400;letter-spacing:0;}
+.q-block{padding:14px 0;border-bottom:1px solid #f0ece4;}
+.q-block:last-child{border-bottom:none;padding-bottom:0;}
+.q-num{font-size:10px;font-family:'DM Mono';color:#bbb;margin-bottom:4px;}
+.q-text{font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:10px;line-height:1.4;}
+.q-other{margin-top:8px;}
+.q-other input{width:100%;padding:10px 12px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:#fff;outline:none;}
+.q-other input:focus{border-color:#1a1a1a;}
+.progress-bar{height:4px;background:#e5e0d8;border-radius:4px;margin:6px 0 16px;}
+.progress-fill{height:100%;background:#1a1a1a;border-radius:4px;transition:width 0.3s;}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.55);z-index:300;display:none;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border-radius:20px 20px 0 0;padding:20px 18px 30px;width:100%;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
+.modal-close{background:none;border:none;font-size:26px;cursor:pointer;color:#aaa;line-height:1;padding:0;-webkit-appearance:none;}
+.loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;}
+.loc-btn{padding:10px 8px;border:1.5px solid #e0dbd2;border-radius:10px;font-size:13px;text-align:center;background:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;-webkit-appearance:none;}
+.loc-btn.sel{background:#1a1a1a;color:#fff;border-color:#1a1a1a;}
+.confirm-btn{width:100%;padding:14px;background:#1a1a1a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:10px;-webkit-appearance:none;}
+
+/* ── EXPORT ── */
+.data-preview{background:#1a1a1a;color:#8ab0cc;border-radius:12px;padding:14px;font-family:'DM Mono';font-size:11px;line-height:1.8;white-space:pre-wrap;word-break:break-all;max-height:240px;overflow-y:auto;margin-top:10px;}
+.sum-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0ece4;font-size:13px;}
+.sum-row:last-child{border-bottom:none;}
+.sum-lbl{color:#888;}
+
+/* ── PROGRESS ── */
+.island-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid #e5e0d8;}
+.island-hdr{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:8px;}
+.island-name{font-size:14px;font-weight:600;}
+.island-count{font-size:12px;color:#888;}
+.pbar{background:#e5e0d8;border-radius:4px;height:6px;}
+.pbar-fill{height:6px;border-radius:4px;transition:width 0.4s;}
+.clinic-list{display:none;margin-top:10px;border-top:1px solid #f0ece4;padding-top:8px;}
+.clinic-list.open{display:block;}
+.clinic-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f5f3ef;font-size:13px;cursor:pointer;}
+.clinic-row:last-child{border-bottom:none;}
+.clinic-row:active{background:#f9f7f3;}
+.clinic-badge{font-size:11px;padding:2px 8px;border-radius:20px;}
+.badge-done{background:#e8f8ee;color:#2a7a4a;}
+.badge-pending{background:#f0ede6;color:#aaa;}
+.session-row{padding:10px 0;border-bottom:1px solid #f0ece4;}
+.session-row:last-child{border-bottom:none;}
+.s-btns{display:flex;gap:6px;margin-top:7px;}
+.s-btn{padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;-webkit-appearance:none;}
+
+/* ── NOTES BOX ── */
+.note-box{background:#fffbf0;border-left:3px solid #e8c040;padding:10px 12px;border-radius:0 8px 8px 0;font-size:12px;color:#7a5a10;margin-bottom:12px;line-height:1.5;}
+
+/* ── MANAGE CLINICS MODAL SPECIFICS ── */
+.clinic-manage-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f0ece4;font-size:14px;}
+.clinic-manage-item:last-child{border-bottom:none;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     SETUP SCREEN
+════════════════════════════════════ -->
+<div class="screen active" id="screen-setup">
+  <div class="app-header">
+    <h1>Clinic Assessment</h1>
+    <p>Ministry of Health &amp; Wellness · 2026</p>
+    <div class="clinic-tag" id="hdr-setup"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Clinic Information</div>
+    <div class="field">
+      <label>Island</label>
+      <select id="setup-island" onchange="onIslandChange()">
+        <option value="">Select island</option>
+        <option>San Salvador</option>
+        <option>Andros (North)</option>
+        <option>Andros (South)</option>
+        <option>Eleuthera (North)</option>
+        <option>Eleuthera (Central)</option>
+        <option>Eleuthera (South)</option>
+        <option>Long Island</option>
+      </select>
+    </div>
+    <div class="field">
+      <label style="display:flex;justify-content:space-between;align-items:center;">
+        Clinic Name
+        <button onclick="openModal('modal-manage-clinics')" style="font-size:11px;color:#2e5a7e;background:none;border:none;cursor:pointer;padding:0;">Manage clinics</button>
+      </label>
+      <select id="setup-clinic" onchange="updateHeaders()">
+        <option value="">Select island first</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Date of Visit</label>
+      <input type="date" id="setup-date" onchange="updateHeaders()">
+    </div>
+    <div class="field">
+      <label>Person Interviewed (role only)</label>
+      <input type="text" id="setup-person" placeholder="e.g. Head Nurse">
+    </div>
+    <div class="field">
+      <label>Exterior Photo Taken?</label>
+      <div class="opt-row">
+        <button class="opt-btn" onclick="selSingle(this,'photo','Drone')" data-g="photo">Drone ✓</button>
+        <button class="opt-btn" onclick="selSingle(this,'photo','Action Cam')" data-g="photo">Action Cam ✓</button>
+        <button class="opt-btn" onclick="selSingle(this,'photo','Phone')" data-g="photo">Phone ✓</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Arrival Observations</label>
+      <textarea id="setup-notes" placeholder="Tap the mic on your keyboard to speak your notes..."></textarea>
+      <div class="field-hint">💬 Use the microphone key on your iPhone keyboard for voice-to-text</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     STORAGE SCREEN
+════════════════════════════════════ -->
+<div class="screen" id="screen-storage">
+  <div class="app-header">
+    <h1>Storage Areas</h1>
+    <p>Measure every space — L × W × H</p>
+    <div class="clinic-tag" id="hdr-storage"></div>
+  </div>
+  <div class="note-box">📸 Photograph each area before measuring. Include closets, hallways, outside buildings — everything. For open areas with no fixed walls, leave dimensions blank.</div>
+  <div id="storage-list"></div>
+  <button class="add-btn" onclick="addStorageArea()">+ Add Storage Area</button>
+</div>
+
+<!-- ═══════════════════════════════════
+     INVENTORY SCREEN
+════════════════════════════════════ -->
+<div class="screen" id="screen-inventory">
+  <div class="app-header">
+    <h1>Inventory Count</h1>
+    <p>Photo or name · quantity · condition</p>
+    <div class="clinic-tag" id="hdr-inventory"></div>
+  </div>
+  <div class="note-box">📷 Take a photo — AI will suggest the name. Tap any item to expand and add counts from other rooms. Items listed A–Z.</div>
+  <div id="inv-list"></div>
+  <button class="add-btn" onclick="openAddInvModal()">+ Add Inventory Item</button>
+</div>
+
+<!-- ═══════════════════════════════════
+     QUESTIONNAIRE SCREEN
+════════════════════════════════════ -->
+<div class="screen" id="screen-q">
+  <div class="app-header">
+    <h1>Questionnaire</h1>
+    <p>Scroll to answer · tap to select</p>
+    <div class="clinic-tag" id="hdr-q"></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="q-prog" style="width:0%"></div></div>
+
+  <div class="q-screen-inner">
+
+    <!-- SECTION 1: ORDERING -->
+    <div class="q-section">
+      <div class="q-section-hdr">Ordering &amp; Supply <span>Q01 – Q05</span></div>
+      <div class="card">
+        <div class="q-block">
+          <div class="q-num">Q01</div>
+          <div class="q-text">How often do you place a supply order?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q01','Weekly')" data-g="q01">Weekly</button>
+            <button class="opt-btn" onclick="selSingle(this,'q01','Bi-weekly')" data-g="q01">Bi-weekly</button>
+            <button class="opt-btn" onclick="selSingle(this,'q01','Monthly')" data-g="q01">Monthly</button>
+            <button class="opt-btn" onclick="selSingle(this,'q01','As needed')" data-g="q01">As needed</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q02</div>
+          <div class="q-text">What would be the ideal ordering frequency?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q02','Weekly')" data-g="q02">Weekly</button>
+            <button class="opt-btn" onclick="selSingle(this,'q02','Bi-weekly')" data-g="q02">Bi-weekly</button>
+            <button class="opt-btn" onclick="selSingle(this,'q02','Monthly')" data-g="q02">Monthly</button>
+            <button class="opt-btn" onclick="selSingle(this,'q02','Monthly or as needed')" data-g="q02">Monthly / as needed</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q03</div>
+          <div class="q-text">How long does it take to receive an order after placing it?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q03','1-7 days')" data-g="q03">1–7 days</button>
+            <button class="opt-btn" onclick="selSingle(this,'q03','1-2 weeks')" data-g="q03">1–2 weeks</button>
+            <button class="opt-btn" onclick="selSingle(this,'q03','2+ weeks')" data-g="q03">2+ weeks</button>
+            <button class="opt-btn" onclick="selSingle(this,'q03','1-2 months')" data-g="q03">1–2 months</button>
+            <button class="opt-btn" onclick="selSingle(this,'q03','2+ months')" data-g="q03">2+ months</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q04</div>
+          <div class="q-text">Are supply levels adequate for the clinic's needs?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q04','Yes - always')" data-g="q04">Yes — always</button>
+            <button class="opt-btn" onclick="selSingle(this,'q04','Sometimes - run low')" data-g="q04">Sometimes</button>
+            <button class="opt-btn" onclick="selSingle(this,'q04','No - consistent shortages')" data-g="q04">No — shortages</button>
+            <button class="opt-btn" onclick="selSingle(this,'q04','No - frequently out')" data-g="q04">Frequently out</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q05 · select all that apply</div>
+          <div class="q-text">What are the biggest supply chain challenges?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selMulti(this,'q05','Delayed deliveries')" data-g="q05">Delayed deliveries</button>
+            <button class="opt-btn" onclick="selMulti(this,'q05','Inaccurate tracking')" data-g="q05">Inaccurate tracking</button>
+            <button class="opt-btn" onclick="selMulti(this,'q05','Lack of storage')" data-g="q05">Lack of storage</button>
+            <button class="opt-btn" onclick="selMulti(this,'q05','High consumption')" data-g="q05">High consumption</button>
+            <button class="opt-btn" onclick="selMulti(this,'q05','Lack of staffing')" data-g="q05">Lack of staffing</button>
+          </div>
+          <div class="q-other"><input type="text" placeholder="Other — describe..." oninput="setAns('q05-other',this.value)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: TRACKING -->
+    <div class="q-section">
+      <div class="q-section-hdr">Tracking &amp; Records <span>Q06 – Q08</span></div>
+      <div class="card">
+        <div class="q-block">
+          <div class="q-num">Q06 · select all that apply</div>
+          <div class="q-text">How is inventory currently tracked?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selMulti(this,'q06','Pen and paper')" data-g="q06">Pen &amp; paper</button>
+            <button class="opt-btn" onclick="selMulti(this,'q06','Spreadsheet')" data-g="q06">Spreadsheet</button>
+            <button class="opt-btn" onclick="selMulti(this,'q06','Digital system')" data-g="q06">Digital system</button>
+            <button class="opt-btn" onclick="selMulti(this,'q06','No system')" data-g="q06">No system</button>
+          </div>
+          <div class="q-other"><input type="text" placeholder="Other — describe..." oninput="setAns('q06-other',this.value)"></div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q07</div>
+          <div class="q-text">Is there a written or digital inventory list currently maintained?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q07','Yes - updated regularly')" data-g="q07">Yes — updated</button>
+            <button class="opt-btn" onclick="selSingle(this,'q07','Yes - rarely updated')" data-g="q07">Yes — rarely updated</button>
+            <button class="opt-btn" onclick="selSingle(this,'q07','Exists but not followed')" data-g="q07">Exists, not followed</button>
+            <button class="opt-btn" onclick="selSingle(this,'q07','No list at all')" data-g="q07">No list at all</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q08 · select all that apply</div>
+          <div class="q-text">How are supply requisitions submitted?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selMulti(this,'q08','Paper form')" data-g="q08">Paper form</button>
+            <button class="opt-btn" onclick="selMulti(this,'q08','Email')" data-g="q08">Email</button>
+            <button class="opt-btn" onclick="selMulti(this,'q08','Phone call')" data-g="q08">Phone call</button>
+            <button class="opt-btn" onclick="selMulti(this,'q08','Digital system')" data-g="q08">Digital system</button>
+          </div>
+          <div class="q-other"><input type="text" placeholder="Other — describe..." oninput="setAns('q08-other',this.value)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: SHORTAGES -->
+    <div class="q-section">
+      <div class="q-section-hdr">Shortages &amp; Logistics <span>Q09 – Q13</span></div>
+      <div class="card">
+        <div class="q-block">
+          <div class="q-num">Q09</div>
+          <div class="q-text">How often do stock shortages occur?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q09','Rarely')" data-g="q09">Rarely</button>
+            <button class="opt-btn" onclick="selSingle(this,'q09','Occasionally')" data-g="q09">Occasionally</button>
+            <button class="opt-btn" onclick="selSingle(this,'q09','Frequently')" data-g="q09">Frequently</button>
+            <button class="opt-btn" onclick="selSingle(this,'q09','Always')" data-g="q09">Always</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q10 · select all that apply</div>
+          <div class="q-text">What happens when a supply is urgently out of stock?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selMulti(this,'q10','Emergency order')" data-g="q10">Emergency order</button>
+            <button class="opt-btn" onclick="selMulti(this,'q10','Borrow from another clinic')" data-g="q10">Borrow from clinic</button>
+            <button class="opt-btn" onclick="selMulti(this,'q10','Outside supplier')" data-g="q10">Outside supplier</button>
+            <button class="opt-btn" onclick="selMulti(this,'q10','Wait for next order')" data-g="q10">Wait</button>
+          </div>
+          <div class="q-other"><input type="text" placeholder="Other — describe..." oninput="setAns('q10-other',this.value)"></div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q11</div>
+          <div class="q-text">How closely does an order match what was requested?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q11','Always matches')" data-g="q11">Always matches</button>
+            <button class="opt-btn" onclick="selSingle(this,'q11','Mostly matches')" data-g="q11">Mostly matches</button>
+            <button class="opt-btn" onclick="selSingle(this,'q11','Frequently incomplete')" data-g="q11">Frequently incomplete</button>
+            <button class="opt-btn" onclick="selSingle(this,'q11','Rarely matches')" data-g="q11">Rarely matches</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q12 · select all that apply</div>
+          <div class="q-text">How are supplies transported to this clinic?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selMulti(this,'q12','Government vehicle')" data-g="q12">Govt vehicle</button>
+            <button class="opt-btn" onclick="selMulti(this,'q12','Boat')" data-g="q12">Boat</button>
+            <button class="opt-btn" onclick="selMulti(this,'q12','By plane')" data-g="q12">By plane</button>
+            <button class="opt-btn" onclick="selMulti(this,'q12','Staff vehicle')" data-g="q12">Staff vehicle</button>
+          </div>
+          <div class="q-other"><input type="text" placeholder="Other — describe..." oninput="setAns('q12-other',this.value)"></div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q13</div>
+          <div class="q-text">Are staff notified when an order is being processed or on the way?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q13','Always')" data-g="q13">Always</button>
+            <button class="opt-btn" onclick="selSingle(this,'q13','Sometimes')" data-g="q13">Sometimes</button>
+            <button class="opt-btn" onclick="selSingle(this,'q13','Rarely')" data-g="q13">Rarely</button>
+            <button class="opt-btn" onclick="selSingle(this,'q13','Never')" data-g="q13">Never</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: STORAGE CONDITIONS -->
+    <div class="q-section">
+      <div class="q-section-hdr">Storage &amp; Conditions <span>Q14 – Q18</span></div>
+      <div class="card">
+        <div class="q-block">
+          <div class="q-num">Q14</div>
+          <div class="q-text">How would you rate current storage space relative to clinic needs?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q14','More than adequate')" data-g="q14">More than adequate</button>
+            <button class="opt-btn" onclick="selSingle(this,'q14','Adequate')" data-g="q14">Adequate</button>
+            <button class="opt-btn" onclick="selSingle(this,'q14','Slightly inadequate')" data-g="q14">Slightly inadequate</button>
+            <button class="opt-btn" onclick="selSingle(this,'q14','Significantly inadequate')" data-g="q14">Significantly inadequate</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q15</div>
+          <div class="q-text">Is there a designated area for expired or near-expiry items?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q15','Yes - labeled')" data-g="q15">Yes — labeled</button>
+            <button class="opt-btn" onclick="selSingle(this,'q15','Yes - not maintained')" data-g="q15">Yes — not maintained</button>
+            <button class="opt-btn" onclick="selSingle(this,'q15','No - mixed in')" data-g="q15">No — mixed in</button>
+            <button class="opt-btn" onclick="selSingle(this,'q15','No area at all')" data-g="q15">No area at all</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q16</div>
+          <div class="q-text">How are temperature-sensitive supplies stored?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q16','Refrigeration monitored')" data-g="q16">Refrigeration monitored</button>
+            <button class="opt-btn" onclick="selSingle(this,'q16','Refrigeration not monitored')" data-g="q16">Not monitored</button>
+            <button class="opt-btn" onclick="selSingle(this,'q16','No temperature control')" data-g="q16">No temp control</button>
+            <button class="opt-btn" onclick="selSingle(this,'q16','Not applicable')" data-g="q16">N/A</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q17 · select all that apply</div>
+          <div class="q-text">How are expired or damaged supplies disposed of?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selMulti(this,'q17','General waste')" data-g="q17">General waste</button>
+            <button class="opt-btn" onclick="selMulti(this,'q17','Return to supplier')" data-g="q17">Return to supplier</button>
+            <button class="opt-btn" onclick="selMulti(this,'q17','Send to Nassau')" data-g="q17">Send to Nassau</button>
+            <button class="opt-btn" onclick="selMulti(this,'q17','Specific procedure')" data-g="q17">Specific procedure</button>
+          </div>
+          <div class="q-other"><input type="text" placeholder="Other — describe..." oninput="setAns('q17-other',this.value)"></div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q18</div>
+          <div class="q-text">In the past 6 months, have supplies been discarded due to expiry?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q18','Yes - frequently')" data-g="q18">Yes — frequently</button>
+            <button class="opt-btn" onclick="selSingle(this,'q18','Yes - occasionally')" data-g="q18">Yes — occasionally</button>
+            <button class="opt-btn" onclick="selSingle(this,'q18','Rarely')" data-g="q18">Rarely</button>
+            <button class="opt-btn" onclick="selSingle(this,'q18','Never')" data-g="q18">Never</button>
+            <button class="opt-btn" onclick="selSingle(this,'q18','Unsure')" data-g="q18">Unsure</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: STAFFING -->
+    <div class="q-section">
+      <div class="q-section-hdr">Staffing &amp; Improvements <span>Q19 – Q21</span></div>
+      <div class="card">
+        <div class="q-block">
+          <div class="q-num">Q19</div>
+          <div class="q-text">Who is primarily responsible for inventory management?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selSingle(this,'q19','Clinic Administrator')" data-g="q19">Administrator</button>
+            <button class="opt-btn" onclick="selSingle(this,'q19','Head Nurse')" data-g="q19">Head Nurse</button>
+            <button class="opt-btn" onclick="selSingle(this,'q19','Rotates among staff')" data-g="q19">Rotates</button>
+            <button class="opt-btn" onclick="selSingle(this,'q19','No designated person')" data-g="q19">No one designated</button>
+          </div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q20 · select all that apply</div>
+          <div class="q-text">What improvements would most benefit the supply chain?</div>
+          <div class="opt-row">
+            <button class="opt-btn" onclick="selMulti(this,'q20','Better storage organization')" data-g="q20">Better organization</button>
+            <button class="opt-btn" onclick="selMulti(this,'q20','Digital tracking')" data-g="q20">Digital tracking</button>
+            <button class="opt-btn" onclick="selMulti(this,'q20','More frequent orders')" data-g="q20">More frequent orders</button>
+            <button class="opt-btn" onclick="selMulti(this,'q20','Staff training')" data-g="q20">Staff training</button>
+            <button class="opt-btn" onclick="selMulti(this,'q20','More funding')" data-g="q20">More funding</button>
+            <button class="opt-btn" onclick="selMulti(this,'q20','Better facilities')" data-g="q20">Better facilities</button>
+          </div>
+          <div class="q-other"><input type="text" placeholder="Other — describe..." oninput="setAns('q20-other',this.value)"></div>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q21</div>
+          <div class="q-text">What additional support or resources would help most?</div>
+          <textarea id="q21t" placeholder="Free response..." oninput="setAns('q21',this.value)" style="width:100%;padding:10px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;min-height:70px;resize:vertical;outline:none;margin-top:4px;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6: OPEN ENDED -->
+    <div class="q-section">
+      <div class="q-section-hdr">Open Ended <span>Q22 – Q23</span></div>
+      <div class="card">
+        <div class="q-block">
+          <div class="q-num">Q22</div>
+          <div class="q-text">Any concerns to note in this assessment?</div>
+          <textarea id="q22t" placeholder="Record verbatim if possible. Use mic key for voice-to-text." oninput="setAns('q22',this.value)" style="width:100%;padding:10px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;min-height:80px;resize:vertical;outline:none;margin-top:4px;"></textarea>
+        </div>
+        <div class="q-block">
+          <div class="q-num">Q23</div>
+          <div class="q-text">Top recommendation for improving inventory management here?</div>
+          <textarea id="q23t" placeholder="Staff recommendation..." oninput="setAns('q23',this.value)" style="width:100%;padding:10px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;min-height:80px;resize:vertical;outline:none;margin-top:4px;"></textarea>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end q-screen-inner -->
+</div>
+
+<!-- ═══════════════════════════════════
+     EXPORT SCREEN
+════════════════════════════════════ -->
+<div class="screen" id="screen-export">
+  <div class="app-header">
+    <h1>Export Data</h1>
+    <p>Send to Claude to build your report</p>
+    <div class="clinic-tag" id="hdr-export"></div>
+  </div>
+  <div class="card" id="export-summary"><div class="card-title">Assessment Summary</div><p style="font-size:13px;color:#aaa;">Tap Export to generate summary.</p></div>
+  <button class="primary-btn" id="copy-btn" onclick="buildAndCopy()">📋 Copy All Data for Claude</button>
+  <button class="primary-btn green" onclick="saveSession()">💾 Save Session &amp; Start New Clinic</button>
+  <button class="primary-btn blue" onclick="exportBackup()">📦 Export Backup File</button>
+  <button class="primary-btn outline" onclick="document.getElementById('import-file').click()">↩ Import Backup</button>
+  <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(this)">
+  <button class="primary-btn outline" style="margin-top:4px;" onclick="clearAll()">🗑 Clear Without Saving</button>
+  <div class="card" style="margin-top:8px;">
+    <div class="card-title">Data Preview</div>
+    <div class="data-preview" id="data-preview">Tap "Copy All Data for Claude" to generate preview.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PROGRESS SCREEN
+════════════════════════════════════ -->
+<div class="screen" id="screen-progress">
+  <div class="app-header">
+    <h1>Island Progress</h1>
+    <p>Tap island → tap clinic to view/edit</p>
+  </div>
+  <div class="card">
+    <div class="card-title">Overall Completion</div>
+    <div id="overall-txt" style="font-size:13px;color:#555;margin-bottom:8px;"></div>
+    <div class="pbar"><div class="pbar-fill" id="overall-bar" style="width:0%;background:#1a1a1a;"></div></div>
+  </div>
+  <div id="islands-list"></div>
+  <button class="add-btn" onclick="openModal('modal-add-island')" style="margin-bottom:12px;">+ Add Custom Island</button>
+  <div class="card">
+    <div class="card-title">Saved Sessions</div>
+    <div id="sessions-list"><p style="font-size:13px;color:#aaa;text-align:center;padding:8px;">No sessions saved yet.</p></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     MODALS
+════════════════════════════════════ -->
+
+<!-- ADD INVENTORY ITEM -->
+<div class="modal-overlay" id="modal-add-inv">
+  <div class="modal-box">
+    <div class="modal-title">Add Item <button class="modal-close" onclick="closeModal('modal-add-inv')">×</button></div>
+    <div class="photo-opts">
+      <div class="photo-opt" onclick="triggerCamera()">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span>Take Photo</span>
+      </div>
+      <div class="photo-opt" onclick="document.getElementById('new-name').focus()">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <span>Enter Name</span>
+      </div>
+    </div>
+    <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none" onchange="photoTaken(this)">
+    <div id="photo-area" style="display:none">
+      <img id="photo-img" class="photo-preview-img" src="" alt="">
+      <div id="ai-loading" style="display:none;text-align:center;font-size:13px;color:#888;padding:8px 0;">Identifying item...</div>
+      <div id="ai-box" class="ai-box" style="display:none">
+        <strong>AI Suggestion</strong>
+        <div id="ai-name-txt" style="margin-bottom:6px;color:#333;"></div>
+        <div class="ai-action-row">
+          <button class="ai-action-btn" onclick="acceptAI()" style="background:#1a1a1a;color:#fff;border:none;">Use This</button>
+          <button class="ai-action-btn" onclick="editAI()" style="background:#fff;border:1px solid #ccc;color:#333;">Edit</button>
+        </div>
+      </div>
+    </div>
+    <div class="field"><label>Item Name</label><input type="text" id="new-name" placeholder="e.g. Nitrile Gloves Small"></div>
+    <div class="field"><label>Category</label>
+      <select id="new-cat">
+        <option value="">Select category</option>
+        <option>Medical Supplies</option><option>Medications</option><option>Equipment</option>
+        <option>PPE</option><option>Cleaning Supplies</option><option>Emergency / Hurricane</option>
+        <option>Office / Admin</option><option>Other</option>
+      </select>
+    </div>
+    <div class="field"><label>Initial Quantity</label>
+      <div class="qty-wrap">
+        <div class="qty-presets">
+          <button class="qp" onclick="setQty(1)">1</button><button class="qp" onclick="setQty(5)">5</button>
+          <button class="qp" onclick="setQty(10)">10</button><button class="qp" onclick="setQty(25)">25</button>
+          <button class="qp" onclick="setQty(50)">50</button><button class="qp" onclick="setQty(100)">100</button>
+        </div>
+        <div class="qty-stepper">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <div class="qty-val" id="new-qty">1</div>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+          <select id="new-unit" class="unit-sel"><option>Unit</option><option>Box</option><option>Case</option><option>Pack</option><option>Bottle</option><option>Bag</option><option>Roll</option><option>Pair</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="field"><label>Location Found</label>
+      <select id="new-loc-sel" onchange="syncLocSel()">
+        <option value="">Select location</option>
+        <option>Room 1</option><option>Room 2</option><option>Room 3</option>
+        <option>Exam Room 1</option><option>Exam Room 2</option><option>Exam Room 3</option>
+        <option>Storage Closet</option><option>Hallway</option><option>Bathroom</option>
+        <option>Outside Building</option><option>Reception Area</option>
+        <option value="custom">Custom...</option>
+      </select>
+      <input type="text" id="new-loc-custom" placeholder="Type custom location..." style="display:none;margin-top:8px;width:100%;padding:10px 12px;border:1.5px solid #e0dbd2;border-radius:8px;font-size:14px;" oninput="syncLocCustom(this.value)">
+    </div>
+    <div class="field"><label>Condition</label>
+      <div class="cond-mini" id="new-cond">
+        <button class="cmb G" onclick="selCmb('new-cond','G',this)">Good</button>
+        <button class="cmb F" onclick="selCmb('new-cond','F',this)">Fair</button>
+        <button class="cmb P" onclick="selCmb('new-cond','P',this)">Poor / Expired</button>
+      </div>
+    </div>
+    <div class="field"><label>Expiry Date</label>
+      <div class="expiry-row">
+        <button class="na-btn" id="na-btn" onclick="toggleNA()">N/A</button>
+        <select class="exp-sel" id="exp-month"><option value="">Month</option><option value="01">Jan</option><option value="02">Feb</option><option value="03">Mar</option><option value="04">Apr</option><option value="05">May</option><option value="06">Jun</option><option value="07">Jul</option><option value="08">Aug</option><option value="09">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select>
+        <select class="exp-sel" id="exp-year"><option value="">Year</option></select>
+      </div>
+    </div>
+    <div class="field"><label>Notes (optional)</label><input type="text" id="new-notes" placeholder="Any flags or observations"></div>
+    <button class="confirm-btn" onclick="confirmAddInv()">Add Item</button>
+  </div>
+</div>
+
+<!-- ADD COUNT -->
+<div class="modal-overlay" id="modal-add-count">
+  <div class="modal-box">
+    <div class="modal-title"><span id="add-count-title">Add Count</span><button class="modal-close" onclick="closeModal('modal-add-count')">×</button></div>
+    <div class="field"><label>Where did you find it?</label>
+      <div class="loc-grid" id="loc-grid">
+        <button class="loc-btn" onclick="selLoc(this,'Room 1')">Room 1</button>
+        <button class="loc-btn" onclick="selLoc(this,'Room 2')">Room 2</button>
+        <button class="loc-btn" onclick="selLoc(this,'Room 3')">Room 3</button>
+        <button class="loc-btn" onclick="selLoc(this,'Exam Room 1')">Exam Room 1</button>
+        <button class="loc-btn" onclick="selLoc(this,'Exam Room 2')">Exam Room 2</button>
+        <button class="loc-btn" onclick="selLoc(this,'Storage Closet')">Storage Closet</button>
+        <button class="loc-btn" onclick="selLoc(this,'Hallway')">Hallway</button>
+        <button class="loc-btn" onclick="selLoc(this,'Bathroom')">Bathroom</button>
+        <button class="loc-btn" onclick="selLoc(this,'Outside Building')">Outside Building</button>
+        <button class="loc-btn" onclick="selLoc(this,'Reception Area')">Reception Area</button>
+      </div>
+      <input type="text" id="custom-loc" placeholder="Or type custom location..." style="width:100%;padding:10px 12px;border:1.5px solid #e0dbd2;border-radius:10px;font-size:14px;margin-top:8px;outline:none;" oninput="selLocCustom(this.value)">
+    </div>
+    <div class="field"><label>Quantity to Add</label>
+      <div class="qty-wrap">
+        <div class="qty-presets">
+          <button class="qp" onclick="setAddQty(1)">1</button><button class="qp" onclick="setAddQty(5)">5</button>
+          <button class="qp" onclick="setAddQty(10)">10</button><button class="qp" onclick="setAddQty(25)">25</button>
+          <button class="qp" onclick="setAddQty(50)">50</button>
+        </div>
+        <div class="qty-stepper">
+          <button class="qty-btn" onclick="changeAddQty(-1)">−</button>
+          <div class="qty-val" id="add-qty">1</div>
+          <button class="qty-btn" onclick="changeAddQty(1)">+</button>
+          <select id="add-unit" class="unit-sel"><option>Unit</option><option>Box</option><option>Case</option><option>Pack</option><option>Bottle</option><option>Bag</option><option>Roll</option><option>Pair</option></select>
+        </div>
+      </div>
+    </div>
+    <button class="confirm-btn" onclick="confirmAddCount()">Add to Count</button>
+  </div>
+</div>
+
+<!-- MANAGE CLINICS -->
+<div class="modal-overlay" id="modal-manage-clinics">
+  <div class="modal-box">
+    <div class="modal-title">Manage Clinics <button class="modal-close" onclick="closeModal('modal-manage-clinics')">×</button></div>
+    <div id="manage-clinic-island-msg" style="font-size:13px;color:#888;margin-bottom:12px;"></div>
+    <div id="manage-clinic-list"></div>
+    <div class="field" style="margin-top:14px;"><label>Add Custom Clinic Name</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="new-clinic-name" placeholder="Clinic name..." style="flex:1;padding:10px 12px;border:1.5px solid #e0dbd2;border-radius:10px;font-size:14px;outline:none;">
+        <button onclick="addCustomClinic()" style="padding:10px 16px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer;">Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ISLAND -->
+<div class="modal-overlay" id="modal-add-island">
+  <div class="modal-box">
+    <div class="modal-title">Add Custom Island <button class="modal-close" onclick="closeModal('modal-add-island')">×</button></div>
+    <div class="field"><label>Island Name</label><input type="text" id="new-island-name" placeholder="e.g. Exuma"></div>
+    <div class="field"><label>Clinics (one per line)</label>
+      <textarea id="new-island-clinics" placeholder="George Town Community Clinic&#10;Black Point Community Clinic" style="min-height:110px;width:100%;padding:10px;border:1.5px solid #e0dbd2;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;"></textarea>
+    </div>
+    <button class="confirm-btn" onclick="confirmAddIsland()">Add Island</button>
+  </div>
+</div>
+
+<!-- EDIT SESSION -->
+<div class="modal-overlay" id="modal-edit-session">
+  <div class="modal-box">
+    <div class="modal-title"><span id="edit-session-title">Edit Session</span><button class="modal-close" onclick="closeModal('modal-edit-session')">×</button></div>
+    <div class="field"><label>Additional Notes / Observations</label>
+      <textarea id="edit-session-notes" placeholder="Add anything extra — observations, corrections, follow-up items..." style="width:100%;padding:10px;border:1.5px solid #e0dbd2;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;min-height:120px;outline:none;resize:vertical;"></textarea>
+    </div>
+    <div class="field"><label>Quick Corrections</label>
+      <textarea id="edit-session-corrections" placeholder="Note any data corrections here — e.g. 'Change Q01 from Monthly to Bi-weekly'..." style="width:100%;padding:10px;border:1.5px solid #e0dbd2;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;min-height:80px;outline:none;resize:vertical;"></textarea>
+    </div>
+    <button class="confirm-btn" onclick="saveSessionEdits()">Save Changes</button>
+    <button onclick="copySessionData()" style="width:100%;padding:13px;background:#f0f6ff;color:#1a3a5c;border:1.5px solid #b0c8e8;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;font-family:'DM Sans',sans-serif;">📋 Copy This Session for Claude</button>
+    <button onclick="deleteCurrentSession()" style="width:100%;padding:13px;background:#fff0f0;color:#c03030;border:1.5px solid #f0a0a0;border-radius:12px;font-size:14px;cursor:pointer;margin-top:8px;font-family:'DM Sans',sans-serif;">🗑 Delete This Session</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     BOTTOM NAV
+════════════════════════════════════ -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="showScreen('setup',this)">
+    <span class="nav-dot"></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    Setup
+  </button>
+  <button class="nav-btn" onclick="showScreen('storage',this)">
+    <span class="nav-dot"></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    Storage
+  </button>
+  <button class="nav-btn" onclick="showScreen('inventory',this)">
+    <span class="nav-dot"></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+    Inventory
+  </button>
+  <button class="nav-btn" onclick="showScreen('q',this)">
+    <span class="nav-dot"></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Questions
+  </button>
+  <button class="nav-btn" onclick="showScreen('export',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    Export
+  </button>
+  <button class="nav-btn" onclick="showScreen('progress',this);renderProgress();">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Progress
+  </button>
+</nav>
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+var answers = {};
+var multiAns = {};
+var storageCount = 0;
+var invItems = [];
+var currentAddCountId = null;
+var newQty = 1;
+var addQty = 1;
+var currentLoc = '';
+var naSelected = false;
+var currentPhotoData = null;
+var aiSuggestion = null;
+var currentEditSessionId = null;
+var currentNewLoc = '';
+
+var ISLAND_CLINICS = {
+  'San Salvador': ['Cockburn Town Community Clinic','United Estates Community Clinic'],
+  'Andros (North)': ['Fresh Creek Community Clinic','Mastic Point Community Clinic',"Nicholl's Town Community Clinic"],
+  'Andros (South)': ["Johnson's Bay Community Clinic","Kemp's Bay Community Clinic",'Mangrove Cay Community Clinic'],
+  'Eleuthera (North)': ['Bluff Community Clinic','Gregory Town Community Clinic','Hatchet Bay Community Clinic','Harbour Island Community Clinic','Lower Bogue Community Clinic'],
+  'Eleuthera (Central)': ["Governor's Harbour Community Clinic",'Spanish Wells Community Clinic'],
+  'Eleuthera (South)': ['Rock Sound Community Clinic','Tarpum Bay Community Clinic','Wemyss Bight Community Clinic','Green Castle Community Clinic'],
+  'Long Island': ['Clarence Town Community Clinic',"Deadman's Cay Community Clinic",'Simms Community Clinic']
+};
+
+// ═══════════════════════════════════════
+// INIT & STORAGE
+// ═══════════════════════════════════════
+function init() {
+  loadCustomIslands();
+  loadCustomClinics();
+  document.getElementById('setup-date').value = new Date().toISOString().split('T')[0];
+  populateExpYears();
+  updateHeaders();
+  generateIcon();
+}
+
+function getSessions() {
+  try { return JSON.parse(localStorage.getItem('clinic_sessions') || '[]'); } catch(e) { return []; }
+}
+function saveSessions(arr) {
+  localStorage.setItem('clinic_sessions', JSON.stringify(arr));
+}
+function loadCustomIslands() {
+  try { var c = JSON.parse(localStorage.getItem('custom_islands') || '{}'); Object.assign(ISLAND_CLINICS, c); } catch(e) {}
+}
+function loadCustomClinics() {
+  try {
+    var c = JSON.parse(localStorage.getItem('custom_clinics') || '{}');
+    Object.keys(c).forEach(function(island) {
+      if (ISLAND_CLINICS[island]) {
+        c[island].forEach(function(clinic) {
+          if (!ISLAND_CLINICS[island].includes(clinic)) ISLAND_CLINICS[island].push(clinic);
+        });
+      }
+    });
+  } catch(e) {}
+}
+function saveCustomClinics() {
+  try {
+    var custom = {};
+    Object.keys(ISLAND_CLINICS).forEach(function(island) {
+      var defaultClinics = getDefaultClinics(island);
+      var extras = ISLAND_CLINICS[island].filter(function(c) { return !defaultClinics.includes(c); });
+      if (extras.length) custom[island] = extras;
+    });
+    localStorage.setItem('custom_clinics', JSON.stringify(custom));
+  } catch(e) {}
+}
+function getDefaultClinics(island) {
+  var defaults = {
+    'San Salvador': ['Cockburn Town Community Clinic','United Estates Community Clinic'],
+    'Andros (North)': ['Fresh Creek Community Clinic','Mastic Point Community Clinic',"Nicholl's Town Community Clinic"],
+    'Andros (South)': ["Johnson's Bay Community Clinic","Kemp's Bay Community Clinic",'Mangrove Cay Community Clinic'],
+    'Eleuthera (North)': ['Bluff Community Clinic','Gregory Town Community Clinic','Hatchet Bay Community Clinic','Harbour Island Community Clinic','Lower Bogue Community Clinic'],
+    'Eleuthera (Central)': ["Governor's Harbour Community Clinic",'Spanish Wells Community Clinic'],
+    'Eleuthera (South)': ['Rock Sound Community Clinic','Tarpum Bay Community Clinic','Wemyss Bight Community Clinic','Green Castle Community Clinic'],
+    'Long Island': ['Clarence Town Community Clinic',"Deadman's Cay Community Clinic",'Simms Community Clinic']
+  };
+  return defaults[island] || [];
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showScreen(name, btn) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('screen-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  updateHeaders();
+  updateNavDots();
+}
+
+function updateHeaders() {
+  var island = document.getElementById('setup-island').value || '';
+  var clinic = document.getElementById('setup-clinic').value || '';
+  var label = [island, clinic].filter(Boolean).join(' — ') || 'No clinic selected';
+  document.querySelectorAll('.clinic-tag').forEach(function(el) { el.textContent = label; });
+}
+
+function updateNavDots() {
+  var navBtns = document.querySelectorAll('.nav-btn');
+  if (navBtns[1]) navBtns[1].classList.toggle('has-data', document.querySelectorAll('.sarea').length > 0);
+  if (navBtns[2]) navBtns[2].classList.toggle('has-data', invItems.length > 0);
+  if (navBtns[3]) navBtns[3].classList.toggle('has-data', Object.keys(answers).filter(function(k) { return answers[k]; }).length > 0);
+}
+
+// ═══════════════════════════════════════
+// SETUP — ISLAND & CLINIC MANAGEMENT
+// ═══════════════════════════════════════
+function onIslandChange() {
+  var island = document.getElementById('setup-island').value;
+  populateClinicDropdown(island);
+  updateHeaders();
+}
+
+function populateClinicDropdown(island) {
+  var sel = document.getElementById('setup-clinic');
+  sel.innerHTML = '<option value="">Select clinic</option>';
+  if (island && ISLAND_CLINICS[island]) {
+    ISLAND_CLINICS[island].forEach(function(c) {
+      var o = document.createElement('option');
+      o.value = c; o.textContent = c;
+      sel.appendChild(o);
+    });
+  }
+}
+
+function openManageClinics() {
+  var island = document.getElementById('setup-island').value;
+  var msg = document.getElementById('manage-clinic-island-msg');
+  var list = document.getElementById('manage-clinic-list');
+  if (!island) {
+    msg.textContent = 'Please select an island first.';
+    list.innerHTML = '';
+    openModal('modal-manage-clinics');
+    return;
+  }
+  msg.textContent = 'Managing clinics for: ' + island;
+  renderManageClinicList(island);
+  openModal('modal-manage-clinics');
+}
+
+function renderManageClinicList(island) {
+  var list = document.getElementById('manage-clinic-list');
+  if (!ISLAND_CLINICS[island] || !ISLAND_CLINICS[island].length) {
+    list.innerHTML = '<p style="font-size:13px;color:#aaa;">No clinics listed yet.</p>';
+    return;
+  }
+  list.innerHTML = ISLAND_CLINICS[island].map(function(c, i) {
+    return '<div class="clinic-manage-item">'
+      + '<span>' + c + '</span>'
+      + '<button onclick="removeClinic(\'' + island + '\',' + i + ')" style="background:none;border:none;color:#c03030;font-size:18px;cursor:pointer;">×</button>'
+      + '</div>';
+  }).join('');
+}
+
+function removeClinic(island, index) {
+  if (!confirm('Remove "' + ISLAND_CLINICS[island][index] + '"?')) return;
+  ISLAND_CLINICS[island].splice(index, 1);
+  saveCustomClinics();
+  renderManageClinicList(island);
+  populateClinicDropdown(island);
+}
+
+function addCustomClinic() {
+  var island = document.getElementById('setup-island').value;
+  var name = document.getElementById('new-clinic-name').value.trim();
+  if (!island) { alert('Select an island first.'); return; }
+  if (!name) { alert('Enter a clinic name.'); return; }
+  if (!ISLAND_CLINICS[island]) ISLAND_CLINICS[island] = [];
+  ISLAND_CLINICS[island].push(name);
+  saveCustomClinics();
+  document.getElementById('new-clinic-name').value = '';
+  renderManageClinicList(island);
+  populateClinicDropdown(island);
+  document.getElementById('setup-clinic').value = name;
+  updateHeaders();
+}
+
+// ═══════════════════════════════════════
+// QUESTIONNAIRE SELECTORS
+// ═══════════════════════════════════════
+function selSingle(btn, key, val) {
+  document.querySelectorAll('[data-g="' + key + '"]').forEach(function(b) { b.classList.remove('sel'); });
+  btn.classList.add('sel');
+  answers[key] = val;
+  updateQProg();
+  updateNavDots();
+}
+
+function selMulti(btn, key, val) {
+  if (!multiAns[key]) multiAns[key] = [];
+  if (btn.classList.contains('sel')) {
+    btn.classList.remove('sel');
+    multiAns[key] = multiAns[key].filter(function(v) { return v !== val; });
+  } else {
+    btn.classList.add('sel');
+    multiAns[key].push(val);
+  }
+  answers[key] = multiAns[key].join(', ');
+  updateQProg();
+  updateNavDots();
+}
+
+function setAns(key, val) {
+  answers[key] = val;
+  updateQProg();
+  updateNavDots();
+}
+
+function updateQProg() {
+  var filled = Object.keys(answers).filter(function(k) { return answers[k] && !k.includes('-other'); }).length;
+  document.getElementById('q-prog').style.width = Math.min(100, Math.round(filled / 23 * 100)) + '%';
+}
+
+// ═══════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════
+function addStorageArea() {
+  storageCount++;
+  var id = storageCount;
+  var div = document.createElement('div');
+  div.className = 'sarea';
+  div.id = 'sarea-' + id;
+  div.innerHTML = '<div class="sarea-hdr">'
+    + '<div class="sarea-title">Area ' + id + '</div>'
+    + '<button style="background:none;border:none;color:#c03030;font-size:22px;cursor:pointer;line-height:1;padding:0;" onclick="removeStorageArea(' + id + ')">×</button>'
+    + '</div>'
+    + '<div class="field"><input type="text" placeholder="Area name — e.g. Main Supply Room, Hallway, Bathroom..." id="aname-' + id + '"></div>'
+    + '<div class="dim-row">'
+    + '<div class="dim-f"><label>Length ft</label><input type="number" step="0.1" placeholder="0" id="l-' + id + '" oninput="calcCuft(' + id + ')"></div>'
+    + '<div class="dim-f"><label>Width ft</label><input type="number" step="0.1" placeholder="0" id="w-' + id + '" oninput="calcCuft(' + id + ')"></div>'
+    + '<div class="dim-f"><label>Height ft</label><input type="number" step="0.1" placeholder="0" id="h-' + id + '" oninput="calcCuft(' + id + ')"></div>'
+    + '</div>'
+    + '<div class="cuft-display" id="cuft-' + id + '">Open area — no fixed dimensions</div>'
+    + '<div class="cond-row">'
+    + '<button class="cond-btn G" onclick="selStorageCond(' + id + ',this)">Good</button>'
+    + '<button class="cond-btn F" onclick="selStorageCond(' + id + ',this)">Fair</button>'
+    + '<button class="cond-btn P" onclick="selStorageCond(' + id + ',this)">Poor</button>'
+    + '</div>'
+    + '<div class="field" style="margin-top:10px;margin-bottom:0;"><input type="text" placeholder="Notes on this area..." id="anotes-' + id + '"></div>';
+  document.getElementById('storage-list').appendChild(div);
+  updateNavDots();
+}
+
+function removeStorageArea(id) {
+  var el = document.getElementById('sarea-' + id);
+  if (el) el.remove();
+  updateNavDots();
+}
+
+function calcCuft(id) {
+  var l = parseFloat(document.getElementById('l-' + id).value) || 0;
+  var w = parseFloat(document.getElementById('w-' + id).value) || 0;
+  var h = parseFloat(document.getElementById('h-' + id).value) || 0;
+  var v = (l * w * h).toFixed(2);
+  document.getElementById('cuft-' + id).textContent = v > 0 ? v + ' cu ft' : 'Open area — no fixed dimensions';
+}
+
+function selStorageCond(id, btn) {
+  btn.parentElement.querySelectorAll('.cond-btn').forEach(function(b) { b.classList.remove('sel'); });
+  btn.classList.add('sel');
+}
+
+// ═══════════════════════════════════════
+// INVENTORY
+// ═══════════════════════════════════════
+function openAddInvModal() {
+  newQty = 1; currentPhotoData = null; naSelected = false; aiSuggestion = null; currentNewLoc = '';
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-cat').value = '';
+  document.getElementById('new-qty').textContent = '1';
+  document.getElementById('new-unit').value = 'Unit';
+  document.getElementById('new-loc-sel').value = '';
+  document.getElementById('new-loc-custom').style.display = 'none';
+  document.getElementById('new-loc-custom').value = '';
+  document.getElementById('new-notes').value = '';
+  document.getElementById('new-cond').querySelectorAll('.cmb').forEach(function(b) { b.classList.remove('sel'); });
+  document.getElementById('na-btn').classList.remove('sel');
+  document.getElementById('exp-month').value = '';
+  document.getElementById('exp-year').value = '';
+  document.getElementById('exp-month').style.display = '';
+  document.getElementById('exp-year').style.display = '';
+  document.getElementById('photo-area').style.display = 'none';
+  document.getElementById('ai-loading').style.display = 'none';
+  document.getElementById('ai-box').style.display = 'none';
+  openModal('modal-add-inv');
+}
+
+function syncLocSel() {
+  var val = document.getElementById('new-loc-sel').value;
+  if (val === 'custom') {
+    document.getElementById('new-loc-custom').style.display = 'block';
+    document.getElementById('new-loc-custom').focus();
+    currentNewLoc = '';
+  } else {
+    document.getElementById('new-loc-custom').style.display = 'none';
+    currentNewLoc = val;
+  }
+}
+
+function syncLocCustom(val) { currentNewLoc = val; }
+
+function triggerCamera() { document.getElementById('camera-input').click(); }
+
+function photoTaken(input) {
+  if (!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    currentPhotoData = e.target.result;
+    document.getElementById('photo-img').src = currentPhotoData;
+    document.getElementById('photo-area').style.display = 'block';
+    document.getElementById('ai-loading').style.display = 'block';
+    document.getElementById('ai-box').style.display = 'none';
+    tryAI(currentPhotoData);
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function tryAI(imgData) {
+  var b64 = imgData.split(',')[1];
+  var mt = imgData.split(';')[0].replace('data:', '');
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 150,
+      messages: [{ role: 'user', content: [
+        { type: 'image', source: { type: 'base64', media_type: mt, data: b64 } },
+        { type: 'text', text: 'Identify this clinic supply item. Reply with ONLY valid JSON: {"name":"item name","category":"Medical Supplies OR Medications OR Equipment OR PPE OR Cleaning Supplies OR Emergency / Hurricane OR Office / Admin OR Other"}' }
+      ]}]
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    document.getElementById('ai-loading').style.display = 'none';
+    try {
+      var j = JSON.parse(data.content[0].text.trim());
+      aiSuggestion = j;
+      document.getElementById('ai-name-txt').textContent = j.name + ' (' + j.category + ')';
+      document.getElementById('ai-box').style.display = 'block';
+    } catch(e) {}
+  })
+  .catch(function() { document.getElementById('ai-loading').style.display = 'none'; });
+}
+
+function acceptAI() {
+  if (!aiSuggestion) return;
+  document.getElementById('new-name').value = aiSuggestion.name;
+  document.getElementById('new-cat').value = aiSuggestion.category;
+  document.getElementById('ai-box').style.display = 'none';
+}
+
+function editAI() {
+  if (!aiSuggestion) return;
+  document.getElementById('new-name').value = aiSuggestion.name;
+  document.getElementById('new-cat').value = aiSuggestion.category;
+  document.getElementById('ai-box').style.display = 'none';
+  document.getElementById('new-name').focus();
+}
+
+function setQty(n) { newQty = n; document.getElementById('new-qty').textContent = n; }
+function changeQty(d) { newQty = Math.max(0, newQty + d); document.getElementById('new-qty').textContent = newQty; }
+
+function selCmb(groupId, c, btn) {
+  document.getElementById(groupId).querySelectorAll('.cmb').forEach(function(b) { b.classList.remove('sel'); });
+  btn.classList.add('sel');
+}
+
+function toggleNA() {
+  naSelected = !naSelected;
+  var btn = document.getElementById('na-btn');
+  var m = document.getElementById('exp-month');
+  var y = document.getElementById('exp-year');
+  btn.classList.toggle('sel', naSelected);
+  m.style.display = naSelected ? 'none' : '';
+  y.style.display = naSelected ? 'none' : '';
+}
+
+function confirmAddInv() {
+  var name = document.getElementById('new-name').value.trim() || 'Unnamed Item';
+  var cat = document.getElementById('new-cat').value || 'Other';
+  var qty = newQty;
+  var unit = document.getElementById('new-unit').value;
+  var loc = currentNewLoc || document.getElementById('new-loc-sel').value || 'Unspecified';
+  var condEl = document.getElementById('new-cond').querySelector('.cmb.sel');
+  var cond = condEl ? condEl.textContent : 'Not rated';
+  var expiry = naSelected ? 'N/A'
+    : (document.getElementById('exp-month').value && document.getElementById('exp-year').value
+      ? document.getElementById('exp-month').value + '/' + document.getElementById('exp-year').value
+      : 'Not specified');
+  var notes = document.getElementById('new-notes').value;
+  invItems.push({
+    id: Date.now(),
+    name: name, cat: cat, cond: cond, expiry: expiry,
+    notes: notes, photo: currentPhotoData || null,
+    counts: [{ loc: loc, qty: qty, unit: unit }]
+  });
+  invItems.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
+  renderInvList();
+  closeModal('modal-add-inv');
+}
+
+function renderInvList() {
+  var container = document.getElementById('inv-list');
+  container.innerHTML = '';
+  invItems.forEach(function(item) {
+    var total = item.counts.reduce(function(s, c) { return s + c.qty; }, 0);
+    var unit = item.counts.length > 0 ? item.counts[0].unit : '';
+    var div = document.createElement('div');
+    div.className = 'inv-item';
+    div.id = 'inv-' + item.id;
+    var thumb = item.photo
+      ? '<div class="inv-thumb"><img src="' + item.photo + '" alt="item"></div>'
+      : '<div class="inv-thumb" style="font-size:20px;">&#128230;</div>';
+    var condColor = item.cond === 'Good' ? '#2a7a4a' : item.cond === 'Fair' ? '#c07020' : '#c03030';
+    var expTxt = (item.expiry !== 'Not specified') ? ' · Exp: ' + item.expiry : '';
+    var logRows = '';
+    item.counts.forEach(function(c) {
+      logRows += '<div class="count-entry"><span style="color:#555;">' + c.loc + '</span><span style="font-weight:500;">' + c.qty + ' ' + c.unit + '</span></div>';
+    });
+    div.innerHTML = '<div class="inv-item-hdr" onclick="toggleInvBody(' + item.id + ')">'
+      + '<div style="display:flex;align-items:center;gap:10px;">' + thumb
+      + '<div><div class="inv-name-txt">' + item.name + '</div>'
+      + '<div class="inv-meta-txt">' + item.cat + ' · <span style="color:' + condColor + ';">' + item.cond + '</span>' + expTxt + '</div></div></div>'
+      + '<div class="inv-total-txt">' + total + ' ' + unit + '</div></div>'
+      + '<div class="inv-body" id="ibody-' + item.id + '">'
+      + '<div class="count-log-hdr">Count Log</div>'
+      + logRows
+      + '<div class="count-total-row"><span>Total</span><span>' + total + ' ' + unit + '</span></div>'
+      + '<div class="inv-action-row">'
+      + '<button class="inv-action-btn primary" onclick="openAddCount(' + item.id + ');event.stopPropagation();">+ Add Count</button>'
+      + '<button class="inv-action-btn" onclick="editInvName(' + item.id + ');event.stopPropagation();">Edit Name</button>'
+      + '<button class="inv-action-btn danger" onclick="removeInvItem(' + item.id + ');event.stopPropagation();">Remove</button>'
+      + '</div></div>';
+    container.appendChild(div);
+  });
+  updateNavDots();
+}
+
+function toggleInvBody(id) {
+  var body = document.getElementById('ibody-' + id);
+  if (body) body.classList.toggle('open');
+}
+
+function editInvName(id) {
+  var item = invItems.find(function(i) { return i.id === id; });
+  if (!item) return;
+  var n = prompt('Edit item name:', item.name);
+  if (n !== null && n.trim()) {
+    item.name = n.trim();
+    invItems.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
+    renderInvList();
+  }
+}
+
+function removeInvItem(id) {
+  if (!confirm('Remove this item?')) return;
+  invItems = invItems.filter(function(i) { return i.id !== id; });
+  renderInvList();
+}
+
+function openAddCount(id) {
+  currentAddCountId = id; addQty = 1; currentLoc = '';
+  var item = invItems.find(function(i) { return i.id === id; });
+  if (!item) return;
+  document.getElementById('add-count-title').textContent = 'Add Count — ' + item.name;
+  document.getElementById('add-qty').textContent = '1';
+  document.getElementById('add-unit').value = item.counts.length > 0 ? item.counts[0].unit : 'Unit';
+  document.getElementById('custom-loc').value = '';
+  document.getElementById('loc-grid').querySelectorAll('.loc-btn').forEach(function(b) { b.classList.remove('sel'); });
+  openModal('modal-add-count');
+}
+
+function setAddQty(n) { addQty = n; document.getElementById('add-qty').textContent = n; }
+function changeAddQty(d) { addQty = Math.max(0, addQty + d); document.getElementById('add-qty').textContent = addQty; }
+
+function selLoc(btn, loc) {
+  document.getElementById('loc-grid').querySelectorAll('.loc-btn').forEach(function(b) { b.classList.remove('sel'); });
+  btn.classList.add('sel');
+  currentLoc = loc;
+  document.getElementById('custom-loc').value = '';
+}
+
+function selLocCustom(val) {
+  currentLoc = val;
+  document.getElementById('loc-grid').querySelectorAll('.loc-btn').forEach(function(b) { b.classList.remove('sel'); });
+}
+
+function confirmAddCount() {
+  if (!currentAddCountId) return;
+  if (!currentLoc) { alert('Please select or type a location.'); return; }
+  var item = invItems.find(function(i) { return i.id === currentAddCountId; });
+  if (!item) return;
+  item.counts.push({ loc: currentLoc, qty: addQty, unit: document.getElementById('add-unit').value });
+  renderInvList();
+  closeModal('modal-add-count');
+  setTimeout(function() {
+    var body = document.getElementById('ibody-' + currentAddCountId);
+    if (body) body.classList.add('open');
+  }, 100);
+}
+
+// ═══════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════
+function buildExportData() {
+  var island = document.getElementById('setup-island').value || '---';
+  var clinic = document.getElementById('setup-clinic').value || '---';
+  var date = document.getElementById('setup-date').value || '---';
+  var person = document.getElementById('setup-person').value || '---';
+  var notes = document.getElementById('setup-notes').value || '---';
+
+  var storageText = '';
+  var totalCuft = 0;
+  var aCount = 0;
+  document.querySelectorAll('.sarea').forEach(function(a) {
+    aCount++;
+    var id = a.id.replace('sarea-', '');
+    var name = (document.getElementById('aname-' + id) || {}).value || 'Unnamed Area';
+    var l = parseFloat((document.getElementById('l-' + id) || {}).value) || 0;
+    var w = parseFloat((document.getElementById('w-' + id) || {}).value) || 0;
+    var h = parseFloat((document.getElementById('h-' + id) || {}).value) || 0;
+    var cuft = (l * w * h).toFixed(2);
+    totalCuft += parseFloat(cuft) || 0;
+    var cond = (a.querySelector('.cond-btn.sel') || {}).textContent || 'Not rated';
+    var aNotes = (document.getElementById('anotes-' + id) || {}).value || '';
+    storageText += '  Area ' + aCount + ': ' + name + '\n'
+      + '  ' + (l > 0 ? 'L:' + l + ' x W:' + w + ' x H:' + h + ' = ' + cuft + ' cu ft' : 'Open area - no fixed dimensions')
+      + ' | Condition: ' + cond + '\n  Notes: ' + (aNotes || 'None') + '\n\n';
+  });
+
+  var invText = '';
+  invItems.forEach(function(item) {
+    var total = item.counts.reduce(function(s, c) { return s + c.qty; }, 0);
+    var unit = item.counts.length > 0 ? item.counts[0].unit : '';
+    invText += '  * ' + item.name + ' | ' + item.cat + ' | Total: ' + total + ' ' + unit
+      + ' | Condition: ' + item.cond + ' | Expiry: ' + item.expiry;
+    if (item.counts.length > 1) {
+      invText += '\n    Count breakdown: ' + item.counts.map(function(c) { return c.loc + ': ' + c.qty + ' ' + c.unit; }).join(' | ');
+    }
+    if (item.notes) invText += '\n    Notes: ' + item.notes;
+    invText += '\n';
+  });
+
+  var qLabels = { q01:'Order frequency',q02:'Ideal frequency',q03:'Turnaround time',q04:'Supply adequacy',q05:'Biggest challenges',q06:'Inventory tracking',q07:'Inventory list',q08:'Requisition method',q09:'Shortage frequency',q10:'Urgent process',q11:'Order accuracy',q12:'Transport method',q13:'Order notifications',q14:'Storage rating',q15:'Expired items area',q16:'Temperature storage',q17:'Expired disposal',q18:'Wastage 6 months',q19:'Responsible person',q20:'Improvements needed',q21:'Additional support',q22:'Concerns',q23:'Top recommendation' };
+  var qText = '';
+  Object.keys(qLabels).forEach(function(k) {
+    var val = answers[k] || '---';
+    var other = answers[k + '-other'];
+    if (other) val += ' (Other: ' + other + ')';
+    qText += '  ' + qLabels[k] + ': ' + val + '\n';
+  });
+
+  return {
+    island: island, clinic: clinic, date: date, aCount: aCount,
+    totalCuft: totalCuft.toFixed(2), invCount: invItems.length,
+    qCount: Object.keys(answers).filter(function(k) { return answers[k] && !k.includes('-other'); }).length,
+    full: '============================\nCLINIC ASSESSMENT DATA\n============================\n'
+      + 'Island: ' + island + '\nClinic: ' + clinic + '\nDate: ' + date
+      + '\nPerson Interviewed: ' + person + '\nArrival Notes: ' + notes + '\n\n'
+      + '----------------------------\nSTORAGE AREAS (' + aCount + ' areas | ' + totalCuft.toFixed(2) + ' cu ft total)\n----------------------------\n'
+      + (storageText || '  None recorded.\n') + '\n'
+      + '----------------------------\nINVENTORY COUNT (' + invItems.length + ' items)\n----------------------------\n'
+      + (invText || '  None recorded.\n') + '\n'
+      + '----------------------------\nQUESTIONNAIRE RESPONSES\n----------------------------\n' + qText
+      + '\n============================\nEND | ' + clinic + ' | ' + date + '\n============================'
+  };
+}
+
+function buildAndCopy() {
+  var d = buildExportData();
+  document.getElementById('data-preview').textContent = d.full;
+
+  var sc = document.getElementById('export-summary');
+  sc.innerHTML = '<div class="card-title">Assessment Summary</div>'
+    + '<div class="sum-row"><span class="sum-lbl">Clinic</span><span>' + d.clinic + '</span></div>'
+    + '<div class="sum-row"><span class="sum-lbl">Island</span><span>' + d.island + '</span></div>'
+    + '<div class="sum-row"><span class="sum-lbl">Date</span><span>' + d.date + '</span></div>'
+    + '<div class="sum-row"><span class="sum-lbl">Storage areas</span><span>' + d.aCount + '</span></div>'
+    + '<div class="sum-row"><span class="sum-lbl">Total storage</span><span>' + d.totalCuft + ' cu ft</span></div>'
+    + '<div class="sum-row"><span class="sum-lbl">Inventory items</span><span>' + d.invCount + '</span></div>'
+    + '<div class="sum-row"><span class="sum-lbl">Questions answered</span><span>' + d.qCount + ' / 23</span></div>';
+
+  document.getElementById('hdr-export').textContent = [d.island, d.clinic].filter(Boolean).join(' — ') || '---';
+
+  var btn = document.getElementById('copy-btn');
+  navigator.clipboard.writeText(d.full).then(function() {
+    btn.textContent = '✓ Copied — paste into Claude';
+    btn.style.background = '#2a7a4a';
+    setTimeout(function() { btn.textContent = '📋 Copy All Data for Claude'; btn.style.background = '#1a1a1a'; }, 3000);
+  }).catch(function() {
+    var ta = document.createElement('textarea');
+    ta.value = d.full; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent = '✓ Copied!'; btn.style.background = '#2a7a4a';
+    setTimeout(function() { btn.textContent = '📋 Copy All Data for Claude'; btn.style.background = '#1a1a1a'; }, 3000);
+  });
+}
+
+function saveSession() {
+  var d = buildExportData();
+  if (d.clinic === '---' && d.island === '---') { alert('Please complete Setup before saving.'); return; }
+  var sessions = getSessions();
+  var now = new Date();
+  var timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  sessions.push({
+    id: Date.now(),
+    island: d.island,
+    clinic: d.clinic,
+    date: d.date,
+    time: timeStr,
+    data: d.full,
+    notes: '',
+    corrections: ''
+  });
+  saveSessions(sessions);
+  alert('Session saved! Starting fresh for next clinic.');
+  clearAll();
+}
+
+function exportBackup() {
+  var blob = new Blob([JSON.stringify(getSessions(), null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'clinic_backup_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function handleImport(input) {
+  if (!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var imp = JSON.parse(e.target.result);
+      if (!Array.isArray(imp)) { alert('Invalid backup file.'); return; }
+      var existing = getSessions();
+      var merged = existing.concat(imp.filter(function(i) { return !existing.find(function(e) { return e.id === i.id; }); }));
+      saveSessions(merged);
+      alert('Imported successfully. ' + merged.length + ' total sessions.');
+    } catch(err) { alert('Could not read backup file.'); }
+  };
+  reader.readAsText(input.files[0]);
+}
+
+function clearAll() {
+  if (!confirm('Clear all current assessment data?')) return;
+  ['setup-island','setup-clinic','setup-date','setup-person','setup-notes'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.tagName === 'SELECT' ? el.value = '' : el.value = '';
+  });
+  document.getElementById('storage-list').innerHTML = '';
+  invItems = []; document.getElementById('inv-list').innerHTML = '';
+  document.querySelectorAll('.opt-btn, .cond-btn').forEach(function(b) { b.classList.remove('sel'); });
+  Object.keys(answers).forEach(function(k) { delete answers[k]; });
+  Object.keys(multiAns).forEach(function(k) { delete multiAns[k]; });
+  storageCount = 0;
+  document.getElementById('q-prog').style.width = '0%';
+  ['q21t','q22t','q23t'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('data-preview').textContent = 'Tap "Copy All Data for Claude" to generate preview.';
+  document.getElementById('export-summary').innerHTML = '<div class="card-title">Assessment Summary</div><p style="font-size:13px;color:#aaa;">Tap Export to generate summary.</p>';
+  populateClinicDropdown('');
+  showScreen('setup', document.querySelector('.nav-btn'));
+  updateHeaders();
+  updateNavDots();
+}
+
+// ═══════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════
+function renderProgress() {
+  var sessions = getSessions();
+  var completed = sessions.map(function(s) { return s.island + '|' + s.clinic; });
+  var allClinics = Object.values(ISLAND_CLINICS).flat();
+  var total = allClinics.length;
+  var done = completed.length;
+  var pct = total > 0 ? Math.round(done / total * 100) : 0;
+
+  document.getElementById('overall-txt').textContent = done + ' of ' + total + ' clinics completed (' + pct + '%)';
+  document.getElementById('overall-bar').style.width = pct + '%';
+
+  var container = document.getElementById('islands-list');
+  container.innerHTML = '';
+
+  Object.entries(ISLAND_CLINICS).forEach(function(entry) {
+    var island = entry[0]; var clinics = entry[1];
+    var iDone = clinics.filter(function(c) { return completed.includes(island + '|' + c); }).length;
+    var iPct = clinics.length > 0 ? Math.round(iDone / clinics.length * 100) : 0;
+    var safeId = 'isl-' + island.replace(/[^a-zA-Z0-9]/g, '-');
+    var barColor = iPct === 100 ? '#2a7a4a' : '#1a1a1a';
+
+    var rows = '';
+    clinics.forEach(function(c) {
+      var isDone = completed.includes(island + '|' + c);
+      var s = sessions.find(function(s2) { return s2.island === island && s2.clinic === c; });
+      rows += '<div class="clinic-row" onclick="' + (isDone ? 'openEditSession(' + (s ? s.id : 'null') + ')' : 'void(0)') + '">'
+        + '<span style="color:' + (isDone ? '#2a7a4a' : '#888') + ';">' + (isDone ? '✓ ' : '○ ') + c + '</span>'
+        + '<span class="clinic-badge ' + (isDone ? 'badge-done' : 'badge-pending') + '">'
+        + (isDone ? (s ? s.date : 'Done') : 'Pending') + '</span></div>';
+    });
+
+    var card = document.createElement('div');
+    card.className = 'island-card';
+    card.innerHTML = '<div class="island-hdr" onclick="toggleClinicList(\'' + safeId + '\')">'
+      + '<div class="island-name">' + island + '</div>'
+      + '<div class="island-count">' + iDone + '/' + clinics.length + ' ▾</div></div>'
+      + '<div class="pbar"><div class="pbar-fill" style="width:' + iPct + '%;background:' + barColor + ';"></div></div>'
+      + '<div class="clinic-list" id="' + safeId + '">' + rows + '</div>';
+    container.appendChild(card);
+  });
+
+  renderSessionsList(sessions);
+}
+
+function toggleClinicList(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function renderSessionsList(sessions) {
+  var sl = document.getElementById('sessions-list');
+  if (!sessions || sessions.length === 0) {
+    sl.innerHTML = '<p style="font-size:13px;color:#aaa;text-align:center;padding:8px;">No sessions saved yet.</p>';
+    return;
+  }
+  var html = '';
+  sessions.slice().reverse().forEach(function(s) {
+    html += '<div class="session-row">'
+      + '<div style="font-size:14px;font-weight:500;">' + s.clinic + '</div>'
+      + '<div style="font-size:12px;color:#888;">' + s.island + ' · ' + s.date + (s.time ? ' at ' + s.time : '') + '</div>'
+      + (s.notes ? '<div style="font-size:12px;color:#555;margin-top:3px;font-style:italic;">Note: ' + s.notes.substring(0, 60) + (s.notes.length > 60 ? '...' : '') + '</div>' : '')
+      + '<div class="s-btns">'
+      + '<button class="s-btn" style="background:#f0f6ff;color:#1a3a5c;" onclick="openEditSession(' + s.id + ')">View / Edit</button>'
+      + '<button class="s-btn" style="background:#e8f8ee;color:#2a7a4a;" onclick="copySessionById(' + s.id + ')">Copy</button>'
+      + '<button class="s-btn" style="background:#fff0f0;color:#c03030;" onclick="deleteSession(' + s.id + ')">Delete</button>'
+      + '</div></div>';
+  });
+  sl.innerHTML = html;
+}
+
+function openEditSession(id) {
+  if (!id) return;
+  var s = getSessions().find(function(s) { return s.id === id; });
+  if (!s) return;
+  currentEditSessionId = id;
+  document.getElementById('edit-session-title').textContent = s.clinic + ' — ' + s.date;
+  document.getElementById('edit-session-notes').value = s.notes || '';
+  document.getElementById('edit-session-corrections').value = s.corrections || '';
+  openModal('modal-edit-session');
+}
+
+function saveSessionEdits() {
+  var sessions = getSessions();
+  var idx = sessions.findIndex(function(s) { return s.id === currentEditSessionId; });
+  if (idx === -1) return;
+  sessions[idx].notes = document.getElementById('edit-session-notes').value;
+  sessions[idx].corrections = document.getElementById('edit-session-corrections').value;
+  // Append notes and corrections to the data string
+  if (sessions[idx].notes || sessions[idx].corrections) {
+    var base = sessions[idx].data.split('\n----------------------------\nADDITIONAL NOTES')[0];
+    var extra = '\n----------------------------\nADDITIONAL NOTES\n----------------------------\n';
+    if (sessions[idx].notes) extra += 'Notes: ' + sessions[idx].notes + '\n';
+    if (sessions[idx].corrections) extra += 'Corrections: ' + sessions[idx].corrections + '\n';
+    sessions[idx].data = base + extra;
+  }
+  saveSessions(sessions);
+  closeModal('modal-edit-session');
+  renderProgress();
+  alert('Session updated.');
+}
+
+function copySessionData() {
+  var sessions = getSessions();
+  var s = sessions.find(function(s) { return s.id === currentEditSessionId; });
+  if (!s) return;
+  navigator.clipboard.writeText(s.data).then(function() {
+    alert('Copied! Paste into Claude.');
+  }).catch(function() {
+    alert('Copy failed — please copy the data preview manually.');
+  });
+}
+
+function copySessionById(id) {
+  var s = getSessions().find(function(s) { return s.id === id; });
+  if (!s) return;
+  navigator.clipboard.writeText(s.data).then(function() {
+    alert('Copied! Paste into Claude.');
+  }).catch(function() { alert('Copy failed.'); });
+}
+
+function deleteCurrentSession() {
+  if (!confirm('Delete this session permanently?')) return;
+  var sessions = getSessions().filter(function(s) { return s.id !== currentEditSessionId; });
+  saveSessions(sessions);
+  closeModal('modal-edit-session');
+  renderProgress();
+}
+
+function deleteSession(id) {
+  if (!confirm('Delete this session?')) return;
+  var sessions = getSessions().filter(function(s) { return s.id !== id; });
+  saveSessions(sessions);
+  renderProgress();
+}
+
+// ═══════════════════════════════════════
+// CUSTOM ISLAND
+// ═══════════════════════════════════════
+function confirmAddIsland() {
+  var name = document.getElementById('new-island-name').value.trim();
+  var raw = document.getElementById('new-island-clinics').value.trim();
+  if (!name) { alert('Please enter an island name.'); return; }
+  var clinics = raw ? raw.split('\n').map(function(c) { return c.trim(); }).filter(Boolean) : [];
+  ISLAND_CLINICS[name] = clinics;
+  var sel = document.getElementById('setup-island');
+  var exists = false;
+  for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].value === name) { exists = true; break; } }
+  if (!exists) { var opt = document.createElement('option'); opt.value = name; opt.textContent = name; sel.appendChild(opt); }
+  try {
+    var custom = JSON.parse(localStorage.getItem('custom_islands') || '{}');
+    custom[name] = clinics;
+    localStorage.setItem('custom_islands', JSON.stringify(custom));
+  } catch(e) {}
+  closeModal('modal-add-island');
+  renderProgress();
+  alert(name + ' added successfully.');
+}
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+function populateExpYears() {
+  var sel = document.getElementById('exp-year');
+  var yr = new Date().getFullYear();
+  for (var i = yr; i <= yr + 10; i++) {
+    var o = document.createElement('option');
+    o.value = i; o.textContent = i;
+    sel.appendChild(o);
+  }
+}
+
+function generateIcon() {
+  var s = 512;
+  var c = document.createElement('canvas');
+  c.width = s; c.height = s;
+  var ctx = c.getContext('2d');
+  var g = ctx.createLinearGradient(0, 0, s, s);
+  g.addColorStop(0, '#0d2137'); g.addColorStop(1, '#1e3a56');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.moveTo(110, 0); ctx.lineTo(s - 110, 0); ctx.quadraticCurveTo(s, 0, s, 110);
+  ctx.lineTo(s, s - 110); ctx.quadraticCurveTo(s, s, s - 110, s);
+  ctx.lineTo(110, s); ctx.quadraticCurveTo(0, s, 0, s - 110);
+  ctx.lineTo(0, 110); ctx.quadraticCurveTo(0, 0, 110, 0);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = '#8ab0cc'; ctx.lineWidth = 22; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.roundRect(140, 160, 232, 280, 18); ctx.stroke();
+  ctx.beginPath(); ctx.roundRect(190, 130, 132, 60, 12); ctx.stroke();
+  ctx.lineWidth = 16;
+  [[175, 260, 280, 260],[175, 300, 240, 300],[175, 340, 260, 340],[175, 380, 220, 380]].forEach(function(p) {
+    ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(p[2], p[3]); ctx.stroke();
+  });
+  ctx.fillStyle = '#8ab0cc';
+  ctx.fillRect(308, 195, 44, 14); ctx.fillRect(322, 181, 16, 42);
+  var url = c.toDataURL('image/png');
+  document.getElementById('apple-icon').href = url;
+  document.getElementById('favicon').href = url;
+}
+
+// ═══════════════════════════════════════
+// MANAGE CLINICS BUTTON FIX
+// ═══════════════════════════════════════
+document.querySelector('[onclick="openModal(\'modal-manage-clinics\')"]').setAttribute('onclick', 'openManageClinics()');
+
+// ═══════════════════════════════════════
+// START
+// ═══════════════════════════════════════
+init();
+</script>
+</body>
+</html>
